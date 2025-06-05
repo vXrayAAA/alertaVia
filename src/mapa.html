@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa em Tempo Real - AlertaVia</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="map-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-route"></i>
+                <span>AlertaVia</span>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i> Início
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-map"></i> Mapa
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-bell"></i> Alertas
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-comments"></i> Chat
+                    </a>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-report" onclick="openReportModal()">
+                    <i class="fas fa-plus"></i>
+                    Reportar Ocorrência
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="map-main">
+        <!-- Map Controls -->
+        <div class="map-controls">
+            <div class="control-group">
+                <h3>Filtros</h3>
+                <div class="filter-options">
+                    <label class="filter-item">
+                        <input type="checkbox" id="floods" checked>
+                        <span class="checkmark floods"></span>
+                        Alagamentos
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" id="traffic" checked>
+                        <span class="checkmark traffic"></span>
+                        Trânsito Intenso
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" id="roadworks" checked>
+                        <span class="checkmark roadworks"></span>
+                        Obras
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" id="accidents" checked>
+                        <span class="checkmark accidents"></span>
+                        Acidentes
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Camadas</h3>
+                <div class="layer-options">
+                    <button class="layer-btn active" data-layer="street">
+                        <i class="fas fa-road"></i> Ruas
+                    </button>
+                    <button class="layer-btn" data-layer="satellite">
+                        <i class="fas fa-satellite"></i> Satélite
+                    </button>
+                    <button class="layer-btn" data-layer="terrain">
+                        <i class="fas fa-mountain"></i> Terreno
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Previsão do Tempo</h3>
+                <div class="weather-info">
+                    <div class="weather-current">
+                        <i class="fas fa-cloud-rain weather-icon"></i>
+                        <div class="weather-details">
+                            <span class="temperature">28°C</span>
+                            <span class="condition">Chuva leve</span>
+                            <span class="humidity">Umidade: 85%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <!-- Map Legend -->
+            <div class="map-legend">
+                <h4>Legenda</h4>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color floods"></div>
+                        <span>Alagamento</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color traffic"></div>
+                        <span>Trânsito Intenso</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color roadworks"></div>
+                        <span>Obras na Via</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color accidents"></div>
+                        <span>Acidente</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Box -->
+            <div class="search-box">
+                <input type="text" id="locationSearch" placeholder="Buscar endereço ou local...">
+                <button onclick="searchLocation()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <!-- Current Location Button -->
+            <button class="location-btn" onclick="getCurrentLocation()" title="Minha localização">
+                <i class="fas fa-location-arrow"></i>
+            </button>
+        </div>
+
+        <!-- Alerts Panel -->
+        <div class="alerts-panel">
+            <div class="panel-header">
+                <h3>Alertas Recentes</h3>
+                <button class="panel-toggle" onclick="toggleAlertsPanel()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            <div class="alerts-list">
+                <div class="alert-item flood">
+                    <div class="alert-icon">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <div class="alert-content">
+                        <h4>Alagamento na Av. Boa Viagem</h4>
+                        <p>Altura: 30cm • Reportado há 5 min</p>
+                        <span class="alert-status">Confirmado por 12 usuários</span>
+                    </div>
+                </div>
+
+                <div class="alert-item traffic">
+                    <div class="alert-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="alert-content">
+                        <h4>Trânsito intenso na BR-101</h4>
+                        <p>Tempo estimado: +25 min • Reportado há 8 min</p>
+                        <span class="alert-status">Confirmado por 34 usuários</span>
+                    </div>
+                </div>
+
+                <div class="alert-item roadworks">
+                    <div class="alert-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="alert-content">
+                        <h4>Obras na Av. Conde da Boa Vista</h4>
+                        <p>Faixa esquerda interditada • Reportado há 2h</p>
+                        <span class="alert-status">Oficial - CTTU</span>
+                    </div>
+                </div>
+
+                <div class="alert-item accident">
+                    <div class="alert-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="alert-content">
+                        <h4>Acidente na Ponte do Jiquiá</h4>
+                        <p>Faixa da direita bloqueada • Reportado há 15 min</p>
+                        <span class="alert-status">Confirmado por 8 usuários</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content report-modal">
+            <span class="close" onclick="closeReportModal()">&times;</span>
+            <h2>Reportar Ocorrência</h2>
+            
+            <form class="report-form" onsubmit="submitReport(event)">
+                <div class="form-group">
+                    <label for="reportType">Tipo de Ocorrência:</label>
+                    <select id="reportType" required>
+                        <option value="">Selecione...</option>
+                        <option value="flood">Alagamento</option>
+                        <option value="traffic">Trânsito Intenso</option>
+                        <option value="accident">Acidente</option>
+                        <option value="roadworks">Obras na Via</option>
+                        <option value="other">Outros</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="reportLocation">Localização:</label>
+                    <input type="text" id="reportLocation" placeholder="Digite o endereço ou clique no mapa" readonly>
+                    <small>Clique no mapa para selecionar a localização</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="reportDescription">Descrição:</label>
+                    <textarea id="reportDescription" rows="4" placeholder="Descreva a situação..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="reportSeverity">Severidade:</label>
+                    <select id="reportSeverity" required>
+                        <option value="low">Baixa</option>
+                        <option value="medium" selected>Média</option>
+                        <option value="high">Alta</option>
+                        <option value="critical">Crítica</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" onclick="closeReportModal()" class="btn-secondary">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Enviar Relatório
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Carregando dados do mapa...</p>
+        </div>
+    </div>    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="api-service.js"></script>
+    <script src="map-script.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

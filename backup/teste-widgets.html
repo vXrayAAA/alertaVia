@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlertaVia - Teste de Widgets</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/map-styles.css">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .test-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #3b82f6;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .test-btn:hover {
+            background: #2563eb;
+        }
+        #console-output {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 AlertaVia - Teste de Widgets</h1>
+        
+        <div class="test-section">
+            <h2>⛅ Widget Meteorológico</h2>
+            <div class="weather-info">
+                <div class="weather-current">
+                    <i class="fas fa-cloud-rain weather-icon" id="weather-icon"></i>
+                    <div class="weather-details">
+                        <span class="temperature" id="weather-temp">Carregando...</span>
+                        <span class="condition" id="weather-condition">Aguardando dados</span>
+                        <span class="humidity" id="weather-humidity">Umidade: --</span>
+                    </div>
+                </div>
+            </div>
+            <div class="test-buttons">
+                <button class="test-btn" onclick="testWeatherUpdate()">🔄 Testar Atualização</button>
+                <button class="test-btn" onclick="testWeatherError()">❌ Simular Erro</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📡 Status de Conexão</h2>
+            <div class="server-status">
+                <div class="status-indicator connecting" id="connection-status">
+                    🔄 Conectando...
+                    <small>Verificando conexão</small>
+                </div>
+            </div>
+            <div class="test-buttons">
+                <button class="test-btn" onclick="testStatusOnline()">🟢 Online</button>
+                <button class="test-btn" onclick="testStatusDegraded()">🟡 Instável</button>
+                <button class="test-btn" onclick="testStatusOffline()">🔴 Offline</button>
+                <button class="test-btn" onclick="testStatusConnecting()">🔄 Conectando</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🖥️ Console de Debug</h2>
+            <div class="test-buttons">
+                <button class="test-btn" onclick="clearConsole()">🗑️ Limpar</button>
+                <button class="test-btn" onclick="initializeTestMap()">🚀 Inicializar Mapa</button>
+            </div>
+            <div id="console-output"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config/app-config.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/notifications.js"></script>
+    <script src="assets/js/animations.js"></script>
+    <script src="assets/js/api-service.js"></script>
+    <script src="assets/js/map-script-fixed.js"></script>
+
+    <script>
+        // Interceptar console.log para mostrar no debug
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        function addToConsole(message, type = 'log') {
+            const output = document.getElementById('console-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorMap = {
+                log: '#f9fafb',
+                error: '#ef4444',
+                warn: '#f59e0b'
+            };
+            
+            output.innerHTML += `<div style="color: ${colorMap[type]}; margin: 2px 0;">
+                [${timestamp}] ${message}
+            </div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToConsole(args.join(' '), 'warn');
+        };
+
+        // Funções de teste
+        function testWeatherUpdate() {
+            console.log('🧪 Testando atualização meteorológica...');
+            
+            if (window.alertaViaMap && window.alertaViaMap.displayWeatherInfo) {
+                const mockData = {
+                    temperature: Math.round(20 + Math.random() * 15),
+                    condition: 'Ensolarado',
+                    humidity: Math.round(50 + Math.random() * 40),
+                    icon: 'fas fa-sun'
+                };
+                window.alertaViaMap.displayWeatherInfo(mockData);
+                console.log('✅ Widget meteorológico atualizado com sucesso');
+            } else {
+                console.error('❌ Função displayWeatherInfo não encontrada');
+            }
+        }
+
+        function testWeatherError() {
+            console.log('🧪 Testando erro meteorológico...');
+            
+            if (window.alertaViaMap && window.alertaViaMap.displayWeatherInfo) {
+                window.alertaViaMap.displayWeatherInfo({
+                    temperature: 'N/A',
+                    condition: 'Erro de conexão',
+                    humidity: 'N/A',
+                    icon: 'fas fa-exclamation-triangle'
+                });
+                console.log('⚠️ Erro simulado no widget meteorológico');
+            } else {
+                console.error('❌ Função displayWeatherInfo não encontrada');
+            }
+        }
+
+        function testStatusOnline() {
+            testStatus('online');
+        }
+
+        function testStatusDegraded() {
+            testStatus('degraded');
+        }
+
+        function testStatusOffline() {
+            testStatus('offline');
+        }
+
+        function testStatusConnecting() {
+            testStatus('connecting');
+        }
+
+        function testStatus(status) {
+            console.log(`🧪 Testando status: ${status}`);
+            
+            if (window.alertaViaMap && window.alertaViaMap.updateServerStatus) {
+                window.alertaViaMap.updateServerStatus(status);
+                console.log(`✅ Status atualizado para: ${status}`);
+            } else {
+                console.error('❌ Função updateServerStatus não encontrada');
+            }
+        }
+
+        function clearConsole() {
+            document.getElementById('console-output').innerHTML = '';
+        }
+
+        function initializeTestMap() {
+            console.log('🚀 Inicializando mapa de teste...');
+            
+            if (window.alertaViaMap) {
+                console.log('✅ Instância do mapa encontrada');
+                console.log('📊 Funções disponíveis:', Object.getOwnPropertyNames(Object.getPrototypeOf(window.alertaViaMap)));
+                
+                // Testar inicialização do tempo
+                if (window.alertaViaMap.initializeWeather) {
+                    window.alertaViaMap.initializeWeather();
+                    console.log('🌤️ Inicialização meteorológica chamada');
+                }
+            } else {
+                console.error('❌ Instância do mapa não encontrada');
+            }
+        }
+
+        // Inicializar automaticamente quando a página carregar
+        setTimeout(() => {
+            console.log('🔍 Verificando inicialização automática...');
+            initializeTestMap();
+        }, 2000);
+    </script>
+</body>
+</html>

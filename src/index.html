@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>AlertaVia - Evite alagamentos, encontre rotas seguras</title>
+    <meta name="description" content="Mobilidade inteligente em tempo real para Recife e região. Evite alagamentos e encontre rotas seguras com o AlertaVia.">
+    <meta name="keywords" content="AlertaVia, trânsito, alagamentos, Recife, mobilidade, rotas seguras, tempo real">
+    <meta name="author" content="AlertaVia Team">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3B82F6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AlertaVia">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://alertavia.com.br/">
+    <meta property="og:title" content="AlertaVia - Evite alagamentos, encontre rotas seguras">
+    <meta property="og:description" content="Mobilidade inteligente em tempo real para Recife e região">
+    <meta property="og:image" content="https://alertavia.com.br/og-image.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://alertavia.com.br/">
+    <meta property="twitter:title" content="AlertaVia - Evite alagamentos, encontre rotas seguras">
+    <meta property="twitter:description" content="Mobilidade inteligente em tempo real para Recife e região">    <meta property="twitter:image" content="https://alertavia.com.br/twitter-image.jpg">
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID', {
+            send_page_view: false, // Controle manual da página
+            allow_google_signals: true,
+            allow_ad_personalization_signals: true
+        });
+    </script>
+    
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-route"></i>
+                <span>AlertaVia</span>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link">
+                        Sobre <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="#about">Nossa Missão</a>
+                        <a href="#features">Funcionalidades</a>
+                        <a href="#team">Equipe</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link">
+                        Funcionalidades <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="#map">Mapa em Tempo Real</a>
+                        <a href="#alerts">Alertas da Comunidade</a>
+                        <a href="#chat">Chat Localizado</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link">
+                        Contato <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="#contact">Fale Conosco</a>
+                        <a href="#support">Suporte</a>
+                        <a href="#feedback">Feedback</a>
+                    </div>                </div>
+            </div>            <div class="nav-controls">
+                <button class="theme-toggle" id="themeToggle" title="Alternar tema">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeText">Escuro</span>
+                </button>
+                
+                <!-- Auth Controls -->
+                <div class="auth-controls" id="authControls">
+                    <button class="btn btn-outline" data-auth="login">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Entrar
+                    </button>
+                    <button class="btn btn-primary" data-auth="register">
+                        <i class="fas fa-user-plus"></i>
+                        Cadastrar
+                    </button>
+                </div>
+                
+                <!-- User Menu (hidden by default) -->
+                <div class="user-menu" id="userMenu" style="display: none;">
+                    <div class="user-avatar" id="userAvatar">
+                        <img src="/default-avatar.png" alt="Usuário">
+                        <div class="user-dropdown">
+                            <div class="dropdown-header">
+                                <span class="user-name" id="userName">Usuário</span>
+                                <span class="user-email" id="userEmail">usuario@exemplo.com</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" data-action="profile">
+                                <i class="fas fa-user"></i>
+                                Meu Perfil
+                            </a>
+                            <a href="#" data-action="settings">
+                                <i class="fas fa-cog"></i>
+                                Configurações
+                            </a>
+                            <a href="#" onclick="openMap()">
+                                <i class="fas fa-map"></i>
+                                Abrir Mapa
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" data-auth="logout">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Sair
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="main">
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Evite alagamentos, encontre rotas seguras</h1>
+                <p class="hero-subtitle">Mobilidade inteligente em tempo real para Recife e região</p>
+                
+                <div class="map-button">
+                    <button class="btn-map" onclick="openMap()">
+                        <i class="fas fa-map-marked-alt"></i>
+                        Ver mapa Agora
+                    </button>
+                </div>
+
+                <!-- Feature Cards -->
+                <div class="feature-cards">
+                    <div class="feature-card" onclick="openFeature('map')">
+                        <div class="card-content">
+                            <h3>Mapa em Tempo Real</h3>
+                            <div class="card-button">
+                                <span>Mapa</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card" onclick="openFeature('alerts')">
+                        <div class="card-content">
+                            <h3>Alertas da Comunidade</h3>
+                            <div class="card-button">
+                                <span>Alertas</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card" onclick="openFeature('chat')">
+                        <div class="card-content">
+                            <h3>Chat Localizado</h3>
+                            <div class="card-button">
+                                <span>Chat</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Section -->
+                <div class="cta-section">
+                    <h2>Pronto para rotas mais seguras?</h2>
+                    <button class="btn-platform" onclick="accessPlatform()">
+                        ACESSAR PLATAFORMA
+                    </button>
+                </div>
+
+                <!-- Illustration -->
+                <div class="hero-illustration">
+                    <div class="illustration-container">
+                        <i class="fas fa-mobile-alt"></i>
+                        <i class="fas fa-map"></i>
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about-section">
+            <div class="container">
+                <h2>Nossa Missão</h2>
+                <p>O AlertaVia é uma plataforma inovadora que utiliza tecnologia de ponta para fornecer informações em tempo real sobre condições de trânsito e alagamentos na região metropolitana do Recife. Nossa missão é tornar a mobilidade urbana mais segura e eficiente para todos.</p>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <h3>10k+</h3>
+                        <p>Usuários ativos</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>95%</h3>
+                        <p>Precisão dos alertas</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>24/7</h3>
+                        <p>Monitoramento</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features-section">
+            <div class="container">
+                <h2>Funcionalidades Principais</h2>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h3>Mapa Interativo</h3>
+                        <p>Visualize em tempo real as condições de trânsito, pontos de alagamento e rotas alternativas seguras.</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3>Alertas Inteligentes</h3>
+                        <p>Receba notificações instantâneas sobre alagamentos, interdições e condições adversas na sua rota.</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Comunidade Ativa</h3>
+                        <p>Contribua e receba informações da comunidade sobre condições de trânsito em tempo real.</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <h3>Rotas Otimizadas</h3>
+                        <p>Algoritmos inteligentes calculam as melhores rotas evitando alagamentos e congestionamentos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section">
+            <div class="container">
+                <h2>Entre em Contato</h2>
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h3>Fale Conosco</h3>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>contato@alertavia.com.br</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>(81) 9999-9999</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Recife, PE - Brasil</span>
+                        </div>
+                    </div>
+                    
+                    <form class="contact-form">
+                        <input type="text" placeholder="Seu nome" required>
+                        <input type="email" placeholder="Seu e-mail" required>
+                        <textarea placeholder="Sua mensagem" rows="5" required></textarea>
+                        <button type="submit" class="btn-submit">Enviar Mensagem</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="nav-brand">
+                        <i class="fas fa-route"></i>
+                        <span>AlertaVia</span>
+                    </div>
+                    <p>Mobilidade inteligente para um trânsito mais seguro.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Produto</h4>
+                        <a href="#features">Funcionalidades</a>
+                        <a href="#pricing">Preços</a>
+                        <a href="#api">API</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Empresa</h4>
+                        <a href="#about">Sobre</a>
+                        <a href="#team">Equipe</a>
+                        <a href="#careers">Carreiras</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Suporte</h4>
+                        <a href="#help">Ajuda</a>
+                        <a href="#contact">Contato</a>
+                        <a href="#privacy">Privacidade</a>
+                    </div>
+                </div>
+                
+                <div class="footer-social">
+                    <h4>Redes Sociais</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 AlertaVia. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal for Platform Access -->
+    <div id="platformModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Acesse a Plataforma AlertaVia</h2>
+            <p>Em breve nossa plataforma estará disponível para download!</p>
+            <div class="app-buttons">
+                <button class="app-btn">
+                    <i class="fab fa-apple"></i>
+                    <div>
+                        <span>Download na</span>
+                        <strong>App Store</strong>
+                    </div>
+                </button>
+                <button class="app-btn">
+                    <i class="fab fa-google-play"></i>
+                    <div>
+                        <span>Disponível no</span>
+                        <strong>Google Play</strong>
+                    </div>
+                </button>
+            </div>
+        </div>    </div>    <script src="script.js"></script>
+    <script src="auth-manager.js"></script>
+    <script src="user-profile.js"></script>
+    <script src="api-service.js"></script>
+    <script src="notification-manager.js"></script>
+</body>
+</html>

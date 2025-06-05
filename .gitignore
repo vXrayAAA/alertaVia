@@ -1,0 +1,251 @@
+# AlertaVia - .gitignore
+
+# ===========================
+# ARQUIVOS DE SISTEMA
+# ===========================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ===========================
+# EDITORES E IDEs
+# ===========================
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# Atom
+.idea/
+
+# JetBrains
+*.iws
+*.iml
+*.ipr
+.idea/
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+.netrwhist
+*~
+
+# ===========================
+# DEPENDÊNCIAS E PACOTES
+# ===========================
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.eslintcache
+.yarn-integrity
+.yarnrc
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.pytest_cache/
+htmlcov/
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ===========================
+# ARQUIVOS DE BUILD E DIST
+# ===========================
+
+# Build outputs
+dist/
+build/
+out/
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist
+.serverless/
+.fusebox/
+
+# Webpack
+.webpack/
+
+# ===========================
+# LOGS E TEMPORÁRIOS
+# ===========================
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Temporary folders
+tmp/
+temp/
+
+# ===========================
+# CONFIGURAÇÕES E SECRETS
+# ===========================
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# API Keys e configurações sensíveis
+config/local.json
+config/secrets.json
+secrets/
+.secrets
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# ===========================
+# ARQUIVOS ESPECÍFICOS DO PROJETO
+# ===========================
+
+# Backup files (manter apenas os essenciais no controle de versão)
+backup-*/
+*.backup
+*.bak
+*.old
+
+# Test files temporários
+test-results/
+coverage-report/
+
+# Assets temporários
+temp-assets/
+.tmp/
+
+# ===========================
+# SERVIÇOS EM NUVEM
+# ===========================
+
+# Vercel
+.vercel
+
+# Netlify
+.netlify
+
+# ===========================
+# FERRAMENTAS DE DESENVOLVIMENTO
+# ===========================
+
+# ESLint
+.eslintcache
+
+# Prettier
+.prettierignore
+
+# Stylelint
+.stylelintcache
+
+# ===========================
+# MANTER NO REPOSITÓRIO
+# ===========================
+# (Comentários explicativos - estes arquivos DEVEM ser commitados)
+
+# !README.md                 # Documentação principal
+# !LICENSE                   # Licença do projeto
+# !CONTRIBUTING.md           # Guia de contribuição
+# !CODE_OF_CONDUCT.md        # Código de conduta
+# !.github/                  # Templates do GitHub
+# !src/                      # Código fonte
+# !backup/                   # Versões essenciais para desenvolvimento
+# !docs/                     # Documentação técnica
+# !assets/                   # Assets do projeto (imagens, fontes, etc.)
+
+# ===========================
+# NOTAS IMPORTANTES
+# ===========================
+# 
+# 1. Mantenha este arquivo atualizado conforme o projeto evolui
+# 2. Para arquivos sensíveis, use .env.example como template
+# 3. Sempre revisar antes de fazer commit de novos tipos de arquivo
+# 4. Em caso de dúvida, consulte a equipe antes de commitar
+#

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "alertavia-landing-page",
+  "version": "1.0.0",
+  "description": "Landing page moderna e responsiva para o AlertaVia - plataforma de mobilidade inteligente",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8000 -c-1",
+    "dev": "live-server --port=8000 --open=index.html",
+    "build": "echo 'Build process - adicione suas ferramentas de build aqui'",
+    "lint": "echo 'Linting - adicione ferramentas de lint aqui'",
+    "test": "echo 'Tests - adicione seus testes aqui'"
+  },
+  "keywords": [
+    "alertavia",
+    "landing-page",
+    "mobilidade",
+    "transito",
+    "recife",
+    "rotas-seguras",
+    "alagamentos",
+    "pwa"
+  ],
+  "author": "AlertaVia Team",
+  "license": "MIT",
+  "dependencies": {
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alertavia/landing-page.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alertavia/landing-page/issues"
+  },
+  "homepage": "https://alertavia.com.br"
+}

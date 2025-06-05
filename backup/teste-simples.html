@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlertaVia - Teste Simples</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .widget { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .btn { padding: 8px 16px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .status-indicator { padding: 10px; border-radius: 6px; }
+        .status-indicator.online { background: #d4edda; color: #155724; }
+        .status-indicator.offline { background: #f8d7da; color: #721c24; }
+        .status-indicator.degraded { background: #fff3cd; color: #856404; }
+        .status-indicator.connecting { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>AlertaVia - Teste Simples</h1>
+    
+    <div class="widget">
+        <h3>Widget Meteorológico</h3>
+        <div>
+            <span id="weather-temp">Carregando...</span> | 
+            <span id="weather-condition">Aguardando dados</span> | 
+            <span id="weather-humidity">Umidade: --</span>
+        </div>
+        <button class="btn" onclick="testWeather()">Testar Widget</button>
+    </div>
+    
+    <div class="widget">
+        <h3>Status de Conexão</h3>
+        <div class="status-indicator connecting" id="connection-status">
+            🔄 Conectando...
+        </div>
+        <button class="btn" onclick="testStatus('online')">Online</button>
+        <button class="btn" onclick="testStatus('offline')">Offline</button>
+        <button class="btn" onclick="testStatus('degraded')">Instável</button>
+    </div>
+
+    <div class="widget">
+        <h3>Debug</h3>
+        <div id="debug-output" style="background: #333; color: white; padding: 10px; font-family: monospace; height: 200px; overflow-y: auto;"></div>
+        <button class="btn" onclick="clearDebug()">Limpar</button>
+    </div>
+
+    <script>
+        // Sistema de debug
+        function log(message) {
+            const output = document.getElementById('debug-output');
+            const time = new Date().toLocaleTimeString();
+            output.innerHTML += `[${time}] ${message}<br>`;
+            output.scrollTop = output.scrollHeight;
+            console.log(message);
+        }
+
+        function clearDebug() {
+            document.getElementById('debug-output').innerHTML = '';
+        }
+
+        // Funções de teste
+        function displayWeatherInfo(weatherData) {
+            log('🌤️ Atualizando display meteorológico: ' + JSON.stringify(weatherData));
+
+            const tempElement = document.getElementById('weather-temp');
+            const conditionElement = document.getElementById('weather-condition');
+            const humidityElement = document.getElementById('weather-humidity');
+
+            if (tempElement) {
+                tempElement.textContent = `${weatherData.temperature || 'N/A'}°C`;
+                log('✅ Temperatura atualizada');
+            } else {
+                log('❌ Elemento weather-temp não encontrado');
+            }
+
+            if (conditionElement) {
+                const condition = weatherData.condition || 'Indisponível';
+                conditionElement.textContent = condition;
+                log('✅ Condição atualizada');
+            } else {
+                log('❌ Elemento weather-condition não encontrado');
+            }
+
+            if (humidityElement) {
+                humidityElement.textContent = `Umidade: ${weatherData.humidity || 'N/A'}%`;
+                log('✅ Umidade atualizada');
+            } else {
+                log('❌ Elemento weather-humidity não encontrado');
+            }
+
+            log('✅ Interface meteorológica atualizada com sucesso');
+        }
+
+        function updateServerStatus(status) {
+            log(`📡 Atualizando status de conexão: ${status}`);
+
+            const indicator = document.getElementById('connection-status');
+            
+            if (!indicator) {
+                log('❌ Elemento connection-status não encontrado');
+                return;
+            }
+
+            indicator.className = `status-indicator ${status}`;
+            
+            const statusText = {
+                online: '🟢 Online',
+                degraded: '🟡 Instável', 
+                offline: '🔴 Offline',
+                connecting: '🔄 Conectando...'
+            };
+
+            const currentTime = new Date().toLocaleTimeString('pt-BR');
+            indicator.innerHTML = `
+                ${statusText[status] || statusText.offline}
+                <small><br>Última verificação: ${currentTime}</small>
+            `;
+
+            log('✅ Status de conexão atualizado na interface');
+        }
+
+        // Funções de teste para os botões
+        function testWeather() {
+            log('🧪 Testando widget meteorológico...');
+            displayWeatherInfo({
+                temperature: Math.round(20 + Math.random() * 15),
+                condition: 'Ensolarado',
+                humidity: Math.round(50 + Math.random() * 40)
+            });
+        }
+
+        function testStatus(status) {
+            log(`🧪 Testando status: ${status}`);
+            updateServerStatus(status);
+        }
+
+        // Inicialização
+        log('🚀 Página carregada, funções de teste prontas');
+        log('💡 Clique nos botões para testar as funções');
+        
+        // Teste automático inicial
+        setTimeout(() => {
+            log('🔄 Executando teste automático...');
+            testWeather();
+            setTimeout(() => testStatus('online'), 1000);
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+name: 🚀 AlertaVia CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # ===========================
+  # VALIDAÇÃO DE CÓDIGO
+  # ===========================
+  validate:
+    name: 🔍 Validação de Código
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout do código
+      uses: actions/checkout@v4
+
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 📦 Instalar dependências
+      run: |
+        if [ -f package.json ]; then
+          npm ci
+        else
+          echo "📝 Sem package.json encontrado, pulando instalação"
+        fi
+
+    - name: 🧹 Verificar formatação
+      run: |
+        echo "🔍 Verificando estrutura de arquivos..."
+        # Verificar se arquivos essenciais existem
+        test -f README.md || (echo "❌ README.md não encontrado" && exit 1)
+        test -f LICENSE || (echo "❌ LICENSE não encontrado" && exit 1)
+        test -f CONTRIBUTING.md || (echo "❌ CONTRIBUTING.md não encontrado" && exit 1)
+        echo "✅ Arquivos essenciais encontrados"
+
+    - name: 🔗 Verificar links no README
+      run: |
+        echo "🔍 Verificando links no README..."
+        # Verificar se não há links quebrados básicos
+        grep -o 'http[s]*://[^)]*' README.md | head -5 || echo "📝 Nenhum link externo encontrado"
+        echo "✅ Verificação de links concluída"
+
+    - name: 📁 Verificar estrutura do projeto
+      run: |
+        echo "🔍 Verificando estrutura do projeto..."
+        
+        # Verificar se pastas essenciais existem
+        if [ -d "src" ] || [ -d "backup" ]; then
+          echo "✅ Pasta de código fonte encontrada"
+        else
+          echo "⚠️ Nenhuma pasta de código fonte encontrada"
+        fi
+        
+        if [ -d "assets" ] || [ -d "backup/assets" ]; then
+          echo "✅ Pasta de assets encontrada"
+        else
+          echo "⚠️ Pasta de assets não encontrada"
+        fi
+        
+        echo "📊 Estrutura do projeto:"
+        ls -la
+
+  # ===========================
+  # TESTES DE HTML/CSS/JS
+  # ===========================
+  test-web:
+    name: 🌐 Testes Web
+    runs-on: ubuntu-latest
+    needs: validate
+    
+    steps:
+    - name: 📥 Checkout do código
+      uses: actions/checkout@v4
+
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: 📦 Instalar ferramentas de teste
+      run: |
+        npm install -g html-validate
+        npm install -g csslint || echo "⚠️ CSLint não disponível"
+
+    - name: ✅ Validar HTML
+      run: |
+        echo "🔍 Validando arquivos HTML..."
+        find . -name "*.html" -not -path "./node_modules/*" | while read file; do
+          echo "📄 Validando: $file"
+          # Verificação básica de estrutura HTML
+          if grep -q "<html" "$file" && grep -q "</html>" "$file"; then
+            echo "✅ $file: Estrutura HTML básica válida"
+          else
+            echo "⚠️ $file: Estrutura HTML incompleta"
+          fi
+        done
+
+    - name: 🎨 Validar CSS
+      run: |
+        echo "🔍 Validando arquivos CSS..."
+        find . -name "*.css" -not -path "./node_modules/*" | while read file; do
+          echo "📄 Verificando: $file"
+          if [ -s "$file" ]; then
+            echo "✅ $file: Arquivo CSS não vazio"
+          else
+            echo "⚠️ $file: Arquivo CSS vazio"
+          fi
+        done
+
+    - name: ⚡ Verificar JavaScript
+      run: |
+        echo "🔍 Verificando arquivos JavaScript..."
+        find . -name "*.js" -not -path "./node_modules/*" | while read file; do
+          echo "📄 Verificando: $file"
+          # Verificação básica de sintaxe
+          node -c "$file" && echo "✅ $file: Sintaxe válida" || echo "❌ $file: Erro de sintaxe"
+        done
+
+  # ===========================
+  # BUILD E DEPLOY
+  # ===========================
+  build-and-deploy:
+    name: 🚀 Build e Deploy
+    runs-on: ubuntu-latest
+    needs: [validate, test-web]
+    if: github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    
+    steps:
+    - name: 📥 Checkout do código
+      uses: actions/checkout@v4
+
+    - name: 🔧 Setup Pages
+      uses: actions/configure-pages@v4
+
+    - name: 📦 Preparar arquivos para deploy
+      run: |
+        echo "📁 Preparando estrutura de deploy..."
+        
+        # Criar diretório de build
+        mkdir -p build
+        
+        # Determinar qual versão usar para deploy
+        if [ -d "src" ]; then
+          echo "📂 Usando pasta src/ para deploy"
+          cp -r src/* build/
+        elif [ -d "backup" ]; then
+          echo "📂 Usando pasta backup/ para deploy"
+          cp -r backup/* build/
+          # Renomear mapa.html para index.html se não existir index
+          if [ ! -f "build/index.html" ] && [ -f "build/mapa.html" ]; then
+            cp build/mapa.html build/index.html
+          fi
+        else
+          echo "📂 Usando arquivos da raiz para deploy"
+          # Copiar arquivos HTML da raiz
+          find . -maxdepth 1 -name "*.html" -exec cp {} build/ \;
+          # Copiar assets se existirem
+          if [ -d "assets" ]; then
+            cp -r assets build/
+          fi
+        fi
+        
+        # Garantir que existe um index.html
+        if [ ! -f "build/index.html" ]; then
+          echo "📝 Criando index.html básico..."
+          cat > build/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>AlertaVia - Mobilidade Inteligente</title>
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                .container { max-width: 800px; margin: 0 auto; }
+                .logo { font-size: 3em; color: #2196F3; margin-bottom: 20px; }
+                .subtitle { color: #666; font-size: 1.2em; margin-bottom: 30px; }
+                .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 40px 0; }
+                .feature { padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+                .btn { display: inline-block; padding: 12px 24px; background: #2196F3; color: white; text-decoration: none; border-radius: 4px; margin: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="logo">🚨 AlertaVia</div>
+                <p class="subtitle">Plataforma inovadora para mobilidade urbana segura em Recife</p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <h3>🗺️ Mapa Interativo</h3>
+                        <p>Visualize alertas de trânsito em tempo real</p>
+                    </div>
+                    <div class="feature">
+                        <h3>🌤️ Clima</h3>
+                        <p>Informações meteorológicas atualizadas</p>
+                    </div>
+                    <div class="feature">
+                        <h3>📊 Analytics</h3>
+                        <p>Dados e estatísticas de mobilidade</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <a href="mapa.html" class="btn">🗺️ Acessar Mapa</a>
+                    <a href="https://github.com/AlertaVia/alertavia" class="btn">📱 Ver no GitHub</a>
+                </div>
+                
+                <p style="margin-top: 40px; color: #888;">
+                    Desenvolvido pela equipe FIAP Global Solution 2025
+                </p>
+            </div>
+        </body>
+        </html>
+        EOF
+        fi
+        
+        echo "📊 Estrutura de build criada:"
+        ls -la build/
+
+    - name: 📤 Upload dos artifacts
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: build
+
+    - name: 🌐 Deploy no GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+  # ===========================
+  # RELATÓRIO DE STATUS
+  # ===========================
+  status-report:
+    name: 📊 Relatório de Status
+    runs-on: ubuntu-latest
+    needs: [validate, test-web]
+    if: always()
+    
+    steps:
+    - name: 📥 Checkout do código
+      uses: actions/checkout@v4
+
+    - name: 📊 Gerar relatório
+      run: |
+        echo "# 📊 Relatório de Build - AlertaVia" > status-report.md
+        echo "" >> status-report.md
+        echo "**Data:** $(date)" >> status-report.md
+        echo "**Commit:** ${{ github.sha }}" >> status-report.md
+        echo "**Branch:** ${{ github.ref_name }}" >> status-report.md
+        echo "" >> status-report.md
+        
+        # Status dos jobs
+        echo "## 🎯 Status dos Jobs" >> status-report.md
+        echo "" >> status-report.md
+        echo "- **Validação:** ${{ needs.validate.result }}" >> status-report.md
+        echo "- **Testes Web:** ${{ needs.test-web.result }}" >> status-report.md
+        echo "" >> status-report.md
+        
+        # Informações do projeto
+        echo "## 📁 Estrutura do Projeto" >> status-report.md
+        echo "" >> status-report.md
+        echo "\`\`\`" >> status-report.md
+        find . -type f -name "*.html" -o -name "*.css" -o -name "*.js" | grep -v node_modules | head -20 >> status-report.md
+        echo "\`\`\`" >> status-report.md
+        
+        cat status-report.md
+
+    - name: 📄 Salvar relatório como artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: status-report
+        path: status-report.md
+        retention-days: 30

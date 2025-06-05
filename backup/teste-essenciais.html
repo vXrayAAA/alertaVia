@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Mapa - Somente Essenciais</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Estilos essenciais -->
+    <link rel="stylesheet" href="assets/css/map-styles.css">
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: Inter, sans-serif;
+        }
+        
+        .header {
+            background: #1e40af;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .map-main {
+            height: calc(100vh - 60px);
+            display: flex;
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🗺️ AlertaVia - Teste com Scripts Essenciais</h1>
+    </header>
+    
+    <main class="map-main">
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+    </main>
+    
+    <!-- Scripts essenciais apenas -->
+    <script src="config/app-config.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="assets/js/api-service.js"></script>
+    
+    <!-- Script simplificado do mapa -->
+    <script>
+        console.log('🗺️ Iniciando teste com scripts essenciais...');
+        
+        class AlertaViaMapMinimal {
+            constructor() {
+                console.log('🚀 AlertaViaMapMinimal constructor');
+                this.map = null;
+                this.apiService = null;
+                this.isInitialized = false;
+                
+                // Inicializar após DOM estar pronto
+                this.init();
+            }
+            
+            async init() {
+                try {
+                    console.log('🔄 Inicializando...');
+                    
+                    // Aguardar DOM
+                    await this.waitForDOM();
+                    console.log('✅ DOM pronto');
+                    
+                    // Verificar dependências
+                    if (typeof L === 'undefined') {
+                        throw new Error('Leaflet não carregado');
+                    }
+                    console.log('✅ Leaflet OK');
+                    
+                    // Verificar elemento
+                    const mapEl = document.getElementById('map');
+                    if (!mapEl) {
+                        throw new Error('Elemento #map não encontrado');
+                    }
+                    console.log('✅ Elemento #map OK');
+                    
+                    // Criar mapa
+                    this.map = L.map('map').setView([-8.0476, -34.8770], 12);
+                    console.log('✅ Mapa criado');
+                    
+                    // Adicionar camada
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(this.map);
+                    console.log('✅ Camada adicionada');
+                    
+                    // Inicializar API Service
+                    if (typeof APIService !== 'undefined') {
+                        this.apiService = new APIService();
+                        console.log('✅ API Service inicializado');
+                        
+                        // Carregar dados de teste
+                        this.loadTestData();
+                    }
+                    
+                    this.isInitialized = true;
+                    console.log('🎉 Mapa inicializado com sucesso!');
+                    
+                } catch (error) {
+                    console.error('❌ Erro na inicialização:', error);
+                }
+            }
+            
+            async waitForDOM() {
+                return new Promise(resolve => {
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', resolve);
+                    } else {
+                        resolve();
+                    }
+                });
+            }
+            
+            async loadTestData() {
+                try {
+                    console.log('📊 Carregando dados de teste...');
+                    
+                    // Simular alguns marcadores
+                    const testMarkers = [
+                        { lat: -8.0476, lng: -34.8770, type: 'traffic', title: 'Centro - Trânsito Intenso' },
+                        { lat: -8.0520, lng: -34.8810, type: 'floods', title: 'Boa Vista - Alagamento' },
+                        { lat: -8.0450, lng: -34.8720, type: 'roadworks', title: 'Espinheiro - Obras' }
+                    ];
+                    
+                    testMarkers.forEach(marker => {
+                        const icon = this.getMarkerIcon(marker.type);
+                        L.marker([marker.lat, marker.lng], { icon })
+                         .addTo(this.map)
+                         .bindPopup(marker.title);
+                    });
+                    
+                    console.log('✅ Marcadores de teste adicionados');
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao carregar dados:', error);
+                }
+            }
+            
+            getMarkerIcon(type) {
+                const colors = {
+                    traffic: '#ef4444',
+                    floods: '#3b82f6', 
+                    roadworks: '#f59e0b',
+                    accidents: '#dc2626'
+                };
+                
+                return L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="background: ${colors[type] || '#6b7280'}; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>`,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+            }
+        }
+        
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📄 DOM carregado, inicializando mapa...');
+            window.mapMinimal = new AlertaViaMapMinimal();
+        });
+    </script>
+</body>
+</html>

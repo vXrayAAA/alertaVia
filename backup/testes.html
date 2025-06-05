@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlertaVia - Testes de Mapa</title>
+    <style>
+        body {
+            font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background: #f8fafc;
+            color: #1f2937;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tests {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .test-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .test-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: #374151;
+        }
+        
+        .test-card p {
+            margin: 0 0 1rem 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .test-link {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        .test-link:hover {
+            background: #2563eb;
+        }
+        
+        .test-link.primary {
+            background: #1e40af;
+        }
+        
+        .test-link.primary:hover {
+            background: #1d4ed8;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+        
+        .status.working { background: #d1fae5; color: #065f46; }
+        .status.testing { background: #fef3c7; color: #92400e; }
+        .status.fixed { background: #dbeafe; color: #1e40af; }
+        
+        .info {
+            background: #e0f2fe;
+            border: 1px solid #b3e5fc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .server-status {
+            background: #f0f9ff;
+            border: 1px solid #7dd3fc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🗺️ AlertaVia - Testes de Mapa</h1>
+            <p>Centro de controle para diagnóstico e teste das funcionalidades do mapa</p>
+        </header>
+        
+        <div class="server-status">
+            <h3>📡 Status do Servidor</h3>
+            <p><strong>URL:</strong> <code>http://localhost:8080</code></p>
+            <p><strong>Diretório:</strong> <code>d:\\Estudos\\FIAP\\GlobalSolution\\Landing-page\\backup</code></p>
+            <p><strong>Status:</strong> <span id="server-status">Verificando...</span></p>
+        </div>
+        
+        <div class="info">
+            <h3>ℹ️ Informações</h3>
+            <p>Esta página contém links para diferentes versões de teste do mapa AlertaVia. Use os links abaixo para testar diferentes implementações e verificar qual está funcionando corretamente.</p>
+        </div>
+        
+        <div class="tests">
+            <div class="test-card">
+                <h3>🎯 Mapa Principal (Corrigido) <span class="status fixed">CORRIGIDO</span></h3>
+                <p>Versão principal do mapa com script corrigido e inicialização robusta.</p>
+                <a href="mapa.html" class="test-link primary">Abrir Mapa Principal</a>
+            </div>
+            
+            <div class="test-card">
+                <h3>🔬 Teste Básico do Leaflet <span class="status working">FUNCIONANDO</span></h3>
+                <p>Teste simples para verificar se o Leaflet está carregando corretamente.</p>
+                <a href="teste-mapa.html" class="test-link">Teste Básico</a>
+            </div>
+            
+            <div class="test-card">
+                <h3>⚡ Versão Simplificada <span class="status working">FUNCIONANDO</span></h3>
+                <p>Implementação simplificada focada apenas na funcionalidade básica.</p>
+                <a href="teste-mapa-simples.html" class="test-link">Versão Simples</a>
+            </div>
+            
+            <div class="test-card">
+                <h3>🧪 Scripts Essenciais <span class="status testing">TESTE</span></h3>
+                <p>Teste com apenas os scripts essenciais para identificar conflitos.</p>
+                <a href="teste-essenciais.html" class="test-link">Scripts Essenciais</a>
+            </div>
+            
+            <div class="test-card">
+                <h3>🏠 Página Principal <span class="status working">FUNCIONANDO</span></h3>
+                <p>Volta para a página principal do AlertaVia.</p>
+                <a href="index.html" class="test-link">Página Principal</a>
+            </div>
+        </div>
+        
+        <div class="info">
+            <h3>🔧 Diagnóstico</h3>
+            <p><strong>Console do Navegador:</strong> Pressione F12 para abrir as ferramentas de desenvolvimento e ver os logs detalhados.</p>
+            <p><strong>Problemas Identificados:</strong> Ordem de carregamento de scripts, conflitos de dependências, inicialização assíncrona.</p>
+            <p><strong>Soluções Aplicadas:</strong> Script robusto com verificação de dependências, inicialização assíncrona, fallbacks para erros.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Verificar status do servidor
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('/config/app-config.js', { method: 'HEAD' });
+                const statusEl = document.getElementById('server-status');
+                if (response.ok) {
+                    statusEl.textContent = '✅ Online';
+                    statusEl.style.color = '#065f46';
+                } else {
+                    statusEl.textContent = '⚠️ Problemas';
+                    statusEl.style.color = '#92400e';
+                }
+            } catch (error) {
+                const statusEl = document.getElementById('server-status');
+                statusEl.textContent = '❌ Offline';
+                statusEl.style.color = '#991b1b';
+            }
+        }
+        
+        checkServerStatus();
+    </script>
+</body>
+</html>
