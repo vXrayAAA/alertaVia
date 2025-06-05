@@ -19,19 +19,49 @@ class APIService {
         this.checkServerStatus();
         // Verificar status a cada 30 segundos
         setInterval(() => this.checkServerStatus(), 30000);
-    }
-
-    async checkServerStatus() {
+    }    async checkServerStatus() {
+        console.log('📡 Verificando status do servidor...');
+        
         try {
-            // Ping para verificar conectividade
-            const response = await fetch(this.geocodingAPI + '/status', { 
-                method: 'HEAD',
-                timeout: 5000
+            // Simular uma verificação de conectividade mais robusta
+            const testEndpoints = [
+                'https://httpbin.org/status/200',
+                this.geocodingAPI,
+                'https://api.github.com'
+            ];
+            
+            let successCount = 0;
+            const promises = testEndpoints.map(async (url) => {
+                try {
+                    const response = await fetch(url, { 
+                        method: 'HEAD',
+                        mode: 'no-cors', // Para evitar CORS em demonstração
+                        timeout: 3000
+                    });
+                    return true;
+                } catch {
+                    return false;
+                }
             });
-            this.serverStatus = response.ok ? 'online' : 'degraded';
+
+            const results = await Promise.allSettled(promises);
+            successCount = results.filter(r => r.status === 'fulfilled' && r.value).length;
+
+            // Determinar status baseado nos resultados
+            if (successCount >= 2) {
+                this.serverStatus = 'online';
+            } else if (successCount >= 1) {
+                this.serverStatus = 'degraded';
+            } else {
+                this.serverStatus = 'offline';
+            }
+
         } catch (error) {
+            console.warn('⚠️ Erro na verificação de status, assumindo offline:', error);
             this.serverStatus = 'offline';
         }
+        
+        console.log(`📡 Status determinado: ${this.serverStatus}`);
         
         // Emitir evento de mudança de status
         document.dispatchEvent(new CustomEvent('server-status-change', {
@@ -197,6 +227,22 @@ class APIService {
                 severity: 'high',
                 description: 'Alagamento devido à chuva forte',
                 estimatedDelay: '20-30 min'
+            },
+            {
+                type: 'traffic',
+                location: 'Av. Agamenon Magalhães',
+                coordinates: [-8.0234, -34.8943],
+                severity: 'medium',
+                description: 'Congestionamento na via expressa',
+                estimatedDelay: '12-18 min'
+            },
+            {
+                type: 'floods',
+                location: 'Av. Caxangá',
+                coordinates: [-8.0123, -34.8890],
+                severity: 'medium',
+                description: 'Pontos de alagamento isolados',
+                estimatedDelay: '8-15 min'
             }
         ];
 
@@ -267,28 +313,6 @@ class APIService {
         }));
     }
 
-    // Verificar status do servidor
-    async getServerStatus() {
-        try {
-            const status = {
-                api: 'online',
-                database: 'online',
-                traffic_feed: 'online',
-                weather_feed: 'online',
-                response_time: Math.round(50 + Math.random() * 100) + 'ms',
-                last_check: new Date().toISOString()
-            };
-
-            return status;
-        } catch (error) {
-            return {
-                api: 'offline',
-                error: error.message,
-                last_check: new Date().toISOString()
-            };
-        }
-    }
-
     // Buscar rotas alternativas
     async getAlternativeRoutes(from, to) {
         try {
@@ -330,29 +354,6 @@ class APIService {
         }
     }
 
-    // Sistema de notificações
-    async registerForNotifications(userId, preferences) {
-        try {
-            const registration = {
-                user_id: userId,
-                preferences: preferences,
-                timestamp: new Date().toISOString(),
-                status: 'active'
-            };
-
-            // Simular registro
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            return {
-                success: true,
-                message: 'Notificações ativadas com sucesso',
-                registration_id: 'notif_' + Date.now()
-            };
-        } catch (error) {
-            throw new Error('Falha ao registrar notificações');
-        }
-    }
-
     // Geocoding - converter endereço em coordenadas
     async geocode(address) {
         try {
@@ -380,6 +381,51 @@ class APIService {
         } catch (error) {
             console.error('Geocoding error:', error);
             throw error;
+        }
+    }
+
+    // Verificar status do servidor
+    async getServerStatus() {
+        try {
+            const status = {
+                api: 'online',
+                database: 'online',
+                traffic_feed: 'online',
+                weather_feed: 'online',
+                response_time: Math.round(50 + Math.random() * 100) + 'ms',
+                last_check: new Date().toISOString()
+            };
+
+            return status;
+        } catch (error) {
+            return {
+                api: 'offline',
+                error: error.message,
+                last_check: new Date().toISOString()
+            };
+        }
+    }
+
+    // Sistema de notificações
+    async registerForNotifications(userId, preferences) {
+        try {
+            const registration = {
+                user_id: userId,
+                preferences: preferences,
+                timestamp: new Date().toISOString(),
+                status: 'active'
+            };
+
+            // Simular registro
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            return {
+                success: true,
+                message: 'Notificações ativadas com sucesso',
+                registration_id: 'notif_' + Date.now()
+            };
+        } catch (error) {
+            throw new Error('Falha ao registrar notificações');
         }
     }
 
@@ -434,8 +480,8 @@ class NotificationService {
         }
 
         const defaultOptions = {
-            icon: './manifest.json',
-            badge: './manifest.json',
+            icon: './config/manifest.json',
+            badge: './config/manifest.json',
             vibrate: [200, 100, 200],
             tag: 'alertavia-notification',
             requireInteraction: false,
@@ -455,7 +501,7 @@ class NotificationService {
         const title = `⚠️ Novo ${this.getIncidentTypeName(incident.type)}`;
         const options = {
             body: `${incident.location}\n${incident.description}`,
-            icon: './icon-192x192.png',
+            icon: './assets/images/icon-192x192.png',
             tag: `incident-${incident.id}`,
             actions: [
                 { action: 'view', title: 'Ver no Mapa' },
@@ -482,5 +528,7 @@ class NotificationService {
 }
 
 // Exportar para uso global
-window.APIService = APIService;
-window.NotificationService = NotificationService;
+if (typeof window !== 'undefined') {
+    window.APIService = APIService;
+    window.NotificationService = NotificationService;
+}

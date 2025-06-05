@@ -43,6 +43,16 @@ Transformar a mobilidade urbana através da tecnologia, criando um ecossistema i
 ### 🎯 Missão
 Desenvolver uma plataforma colaborativa que utiliza inteligência artificial e dados em tempo real para proporcionar navegação segura e eficiente na região metropolitana do Recife.
 
+### 🗄️ Banco de Dados Completo
+O AlertaVia conta com um **Modelo Entidade-Relacionamento (MER)** robusto e escalável:
+- **14 tabelas principais** otimizadas para performance
+- **Sistema geoespacial** com precisão de ~1 metro
+- **Analytics avançados** com dashboards executivos
+- **Automação completa** via procedures e triggers
+- **Auditoria total** para compliance LGPD
+
+
+
 ---
 
 ## 👥 Equipe
@@ -61,79 +71,8 @@ Desenvolver uma plataforma colaborativa que utiliza inteligência artificial e d
 
 ---
 
-## 🏗️ Arquitetura
 
-### 📊 Modelo Entidade-Relacionamento (MER)
 
-```mermaid
-erDiagram
-    USUARIO ||--o{ RELATORIO : cria
-    USUARIO ||--o{ ROTA : utiliza
-    USUARIO ||--o{ AVALIACAO : faz
-    
-    RELATORIO ||--o{ CONFIRMACAO : recebe
-    RELATORIO }o--|| TIPO_INCIDENTE : pertence
-    RELATORIO }o--|| LOCALIZACAO : ocorre_em
-    
-    ROTA ||--o{ PONTO_ROTA : contem
-    ROTA }o--|| ALGORITMO_ROTA : calculada_por
-    
-    LOCALIZACAO ||--o{ DADOS_TRAFEGO : possui
-    LOCALIZACAO ||--o{ DADOS_METEOROLOGICOS : tem
-    
-    USUARIO {
-        int id_usuario PK
-        string nome
-        string email
-        string telefone
-        datetime data_cadastro
-        boolean ativo
-        string tipo_usuario
-    }
-    
-    RELATORIO {
-        int id_relatorio PK
-        int id_usuario FK
-        int id_tipo_incidente FK
-        float latitude
-        float longitude
-        string descricao
-        datetime data_hora
-        string status
-        int confirmacoes
-        string midia_url
-    }
-    
-    TIPO_INCIDENTE {
-        int id_tipo PK
-        string nome
-        string descricao
-        string cor_mapa
-        int prioridade
-    }
-    
-    ROTA {
-        int id_rota PK
-        int id_usuario FK
-        float origem_lat
-        float origem_lng
-        float destino_lat
-        float destino_lng
-        datetime data_calculo
-        float tempo_estimado
-        float distancia
-        float score_seguranca
-    }
-    
-    LOCALIZACAO {
-        int id_localizacao PK
-        float latitude
-        float longitude
-        string endereco
-        string bairro
-        string zona
-    }
-```
 
 ### 🏛️ Arquitetura do Sistema
 

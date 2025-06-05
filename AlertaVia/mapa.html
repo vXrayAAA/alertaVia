@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa em Tempo Real - AlertaVia</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Estilos da aplicação -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+    <link rel="stylesheet" href="assets/css/map-styles.css">
+    
+    <!-- Fontes e ícones -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="config/manifest.json">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="assets/images/icon-192x192.png">
+</head>
+<body class="map-page">
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Header -->
+    <header class="header animate-on-scroll" data-animation="slideInDown">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-route"></i>
+                <span>AlertaVia</span>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i> Início
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="mapa.html" class="nav-link active">
+                        <i class="fas fa-map"></i> Mapa
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-bell"></i> Alertas
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-comments"></i> Chat
+                    </a>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-report" onclick="openReportModal()">
+                    <i class="fas fa-plus"></i>
+                    Reportar Ocorrência
+                </button>
+                <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="map-main">
+        <!-- Map Controls -->
+        <div class="map-controls animate-on-scroll" data-animation="slideInLeft">
+            <div class="control-group">
+                <h3>Filtros</h3>
+                <div class="filter-options">
+                    <label class="filter-item">
+                        <input type="checkbox" id="floods" checked>
+                        <span class="checkmark floods"></span>
+                        Alagamentos
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" id="traffic" checked>
+                        <span class="checkmark traffic"></span>
+                        Trânsito Intenso
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" id="roadworks" checked>
+                        <span class="checkmark roadworks"></span>
+                        Obras
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" id="accidents" checked>
+                        <span class="checkmark accidents"></span>
+                        Acidentes
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Camadas</h3>
+                <div class="layer-options">
+                    <button class="layer-btn active" data-layer="street">
+                        <i class="fas fa-road"></i> Ruas
+                    </button>
+                    <button class="layer-btn" data-layer="satellite">
+                        <i class="fas fa-satellite"></i> Satélite
+                    </button>
+                    <button class="layer-btn" data-layer="terrain">
+                        <i class="fas fa-mountain"></i> Terreno
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Previsão do Tempo</h3>
+                <div class="weather-info">                    <div class="weather-current">
+                        <i class="fas fa-cloud-rain weather-icon" id="weather-icon"></i>
+                        <div class="weather-details">
+                            <span class="temperature" id="weather-temp">Carregando...</span>
+                            <span class="condition" id="weather-condition">Aguardando dados</span>
+                            <span class="humidity" id="weather-humidity">Umidade: --</span>
+                        </div>
+                    </div>
+                </div>
+            </div>            <!-- Status do servidor -->
+            <div class="server-status">
+                <div class="status-indicator connecting" id="connection-status">
+                    🔄 Conectando...
+                    <small>Verificando conexão</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container animate-on-scroll" data-animation="fadeIn">
+            <div id="map"></div>
+            
+            <!-- Map Legend -->
+            <div class="map-legend">
+                <h4>Legenda</h4>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color floods"></div>
+                        <span>Alagamento</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color traffic"></div>
+                        <span>Trânsito Intenso</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color roadworks"></div>
+                        <span>Obras na Via</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color accidents"></div>
+                        <span>Acidente</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Box -->
+            <div class="search-box">
+                <input type="text" id="locationSearch" placeholder="Buscar endereço ou local...">
+                <button onclick="searchLocation()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <!-- Current Location Button -->
+            <button class="location-btn" onclick="getCurrentLocation()" title="Minha localização">
+                <i class="fas fa-location-arrow"></i>
+            </button>
+        </div>
+
+        <!-- Alerts Panel -->
+        <div class="alerts-panel animate-on-scroll" data-animation="slideInRight">
+            <div class="panel-header">
+                <h3>Alertas Recentes</h3>
+                <button class="panel-toggle" onclick="toggleAlertsPanel()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            <div class="alerts-list">
+                <div class="loading-placeholder">
+                    <div class="skeleton-loader"></div>
+                    <div class="skeleton-loader"></div>
+                    <div class="skeleton-loader"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content report-modal">
+            <span class="close" onclick="closeReportModal()">&times;</span>
+            <h2>Reportar Ocorrência</h2>
+            
+            <form class="report-form" onsubmit="submitReport(event)">
+                <div class="form-group">
+                    <label for="reportType">Tipo de Ocorrência:</label>
+                    <select id="reportType" required>
+                        <option value="">Selecione...</option>
+                        <option value="floods">Alagamento</option>
+                        <option value="traffic">Trânsito Intenso</option>
+                        <option value="accidents">Acidente</option>
+                        <option value="roadworks">Obras na Via</option>
+                        <option value="other">Outros</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="reportLocation">Localização:</label>
+                    <input type="text" id="reportLocation" placeholder="Digite o endereço ou clique no mapa" readonly>
+                    <small>Clique no mapa para selecionar a localização</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="reportDescription">Descrição:</label>
+                    <textarea id="reportDescription" rows="4" placeholder="Descreva a situação..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="reportSeverity">Severidade:</label>
+                    <select id="reportSeverity" required>
+                        <option value="low">Baixa</option>
+                        <option value="medium" selected>Média</option>
+                        <option value="high">Alta</option>
+                        <option value="critical">Crítica</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" onclick="closeReportModal()" class="btn-secondary">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Enviar Relatório
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Carregando dados do mapa...</p>
+        </div>
+    </div>
+
+    <!-- Scripts de configuração -->
+    <script src="config/app-config.js"></script>
+    
+    <!-- Bibliotecas externas -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      <!-- Scripts da aplicação -->    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/notifications.js"></script>
+    <script src="assets/js/animations.js"></script>
+    <script src="assets/js/api-service.js"></script>
+    <script src="assets/js/map-script-fixed.js"></script>
+    <!-- <script src="assets/js/script.js"></script> REMOVIDO - Específico para landing page --><!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('assets/js/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registered successfully');
+                    })
+                    .catch(error => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+
+    <!-- Script de Debug - Verificação de Carregamento -->
+    <script>
+        console.log('🔍 DEBUG: Verificando carregamento de componentes...');
+        
+        // Aguardar um pouco para todos os scripts carregarem
+        setTimeout(() => {
+            console.log('\n📋 VERIFICAÇÃO DE ELEMENTOS DOM:');
+            const elements = ['weather-temp', 'weather-condition', 'weather-humidity', 'weather-icon', 'connection-status'];
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                console.log(`${element ? '✅' : '❌'} ${id}: ${element ? 'ENCONTRADO' : 'NÃO ENCONTRADO'}`);
+            });
+
+            console.log('\n🔧 VERIFICAÇÃO DE CLASSES:');
+            console.log(`${typeof APIService !== 'undefined' ? '✅' : '❌'} APIService: ${typeof APIService !== 'undefined' ? 'CARREGADO' : 'NÃO CARREGADO'}`);
+            console.log(`${typeof AlertaViaMapFixed !== 'undefined' ? '✅' : '❌'} AlertaViaMapFixed: ${typeof AlertaViaMapFixed !== 'undefined' ? 'CARREGADO' : 'NÃO CARREGADO'}`);
+            console.log(`${window.alertaViaMap ? '✅' : '❌'} window.alertaViaMap: ${window.alertaViaMap ? 'INSTANCIADO' : 'NÃO INSTANCIADO'}`);
+
+            if (window.alertaViaMap) {
+                console.log('\n⚙️ VERIFICAÇÃO DE FUNÇÕES:');
+                const functions = ['displayWeatherInfo', 'updateServerStatus', 'initializeWeather'];
+                functions.forEach(fn => {
+                    console.log(`${typeof window.alertaViaMap[fn] === 'function' ? '✅' : '❌'} ${fn}: ${typeof window.alertaViaMap[fn] === 'function' ? 'DISPONÍVEL' : 'NÃO DISPONÍVEL'}`);
+                });
+
+                console.log('\n🧪 EXECUTANDO TESTE AUTOMÁTICO:');
+                
+                // Teste do widget meteorológico
+                if (typeof window.alertaViaMap.displayWeatherInfo === 'function') {
+                    console.log('🌤️ Testando displayWeatherInfo...');
+                    window.alertaViaMap.displayWeatherInfo({
+                        temperature: 26,
+                        condition: 'Teste Automático',
+                        humidity: 72,
+                        icon: 'fas fa-sun'
+                    });
+                    console.log('✅ Teste meteorológico executado');
+                }
+
+                // Teste do status de conexão
+                if (typeof window.alertaViaMap.updateServerStatus === 'function') {
+                    console.log('📡 Testando updateServerStatus...');
+                    window.alertaViaMap.updateServerStatus('online');
+                    console.log('✅ Teste de status executado');
+                }
+
+                // Teste de inicialização meteorológica
+                if (typeof window.alertaViaMap.initializeWeather === 'function') {
+                    console.log('🌤️ Testando initializeWeather...');
+                    window.alertaViaMap.initializeWeather();
+                    console.log('✅ Inicialização meteorológica executada');
+                }
+            }
+
+            console.log('\n🔍 DEBUG: Verificação concluída');
+        }, 3000); // Aguardar 3 segundos para todos os scripts carregarem
+    </script>
+
+    <!-- Debug Script para verificar carregamento -->
+    <script>
+        console.log('🔍 Iniciando debug do mapa...');
+        
+        // Verificar se Leaflet foi carregado
+        window.addEventListener('load', () => {
+            console.log('📄 Página carregada');
+            
+            setTimeout(() => {
+                console.log('🗺️ Verificando dependências:');
+                console.log('- Leaflet:', typeof L !== 'undefined' ? '✅' : '❌');
+                console.log('- AlertaViaConfig:', typeof AlertaViaConfig !== 'undefined' ? '✅' : '❌');
+                console.log('- AlertaViaUtils:', typeof AlertaViaUtils !== 'undefined' ? '✅' : '❌');
+                console.log('- NotificationSystem:', typeof NotificationSystem !== 'undefined' ? '✅' : '❌');
+                console.log('- ApiService:', typeof ApiService !== 'undefined' ? '✅' : '❌');
+                console.log('- AlertaViaMap:', typeof AlertaViaMap !== 'undefined' ? '✅' : '❌');
+                console.log('- mapInstance:', typeof window.mapInstance !== 'undefined' ? '✅' : '❌');
+                
+                // Verificar elemento do mapa
+                const mapElement = document.getElementById('map');
+                console.log('- Elemento #map:', mapElement ? '✅' : '❌');
+                
+                if (mapElement) {
+                    console.log('📐 Dimensões do elemento #map:', {
+                        width: mapElement.offsetWidth,
+                        height: mapElement.offsetHeight,
+                        display: getComputedStyle(mapElement).display
+                    });
+                }
+                
+                // Verificar se o mapa foi inicializado
+                if (window.mapInstance) {
+                    console.log('🎯 Status da instância do mapa:', window.mapInstance.isInitialized ? '✅' : '❌');
+                }
+            }, 500);
+        });
+        
+        // Capturar erros de JavaScript
+        window.addEventListener('error', (event) => {
+            console.error('❌ Erro JavaScript:', event.error);
+        });
+    </script>
+</body>
+</html>
