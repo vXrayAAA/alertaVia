@@ -151,11 +151,6 @@ O AlertaVia conta com um **Modelo Entidade-Relacionamento (MER)** robusto e esca
 
 ### 🚧 Em Desenvolvimento
 
-- **🤖 Inteligência Artificial**
-  - Análise preditiva de tráfego
-  - Detecção automática de padrões
-  - Recomendações personalizadas
-  - Machine Learning para otimização
 
 - **🔔 Sistema de Notificações**
   - Push notifications
